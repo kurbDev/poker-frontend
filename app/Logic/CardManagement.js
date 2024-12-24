@@ -74,6 +74,16 @@ const cardDetails = [
     { name: "CK", number: "K", symbol: "Club", modelPath: "../Scene/Objects/ClubKingObj.glb", value: 13 }
   ];  
   
+/**
+ * BeforeInit()
+ * 
+ * Creates the Cards based on a model and the picture of the value
+ * After that it generates the Cards
+ */  
+
+export function BeforeInit() {
+    
+}
 
 /**
  * Generate the Card Objects
