@@ -100,7 +100,7 @@ export function ShuffleCards(cards) {
         const randomIndex = Math.floor(Math.random() * (index + 1))
         [array[index], array[randomIndex]] = [array[randomIndex], array[index]];
     }
-    console.log("After shuffle: ", cards)
+    // console.log("After shuffle: ", cards)
     return cards;
 }
 
