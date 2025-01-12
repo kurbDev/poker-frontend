@@ -46,7 +46,7 @@ export default function ThreeScene() {
       const deskMaterial = new THREE.MeshStandardMaterial({
         color: 0x8B4513, // Brown color
         normalMap: textureLoader.load("/Scene/Textures/desk_normal.png"),
-        //displacementMap: textureLoader.load("/Scene/Textures/desk_height.bmp"),
+        // displacementMap: textureLoader.load("/Scene/Textures/desk_height.png"),
         displacementScale: 0.1,
       });
 
