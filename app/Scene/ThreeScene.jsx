@@ -19,7 +19,7 @@ export default function ThreeScene() {
       0.1,
       1000
     );
-    camera.position.set(0, 10, 20);
+    camera.position.set(0, 10, 30);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(mount.clientWidth, mount.clientHeight);
@@ -41,98 +41,53 @@ export default function ThreeScene() {
     const gltfLoader = new GLTFLoader();
     const textureLoader = new THREE.TextureLoader();
 
-    const cardModels = [];
-    const cardImages = []; // List of card image URLs
-
-    // Populate card image names
+    // Card Images
+    const cardImages = [];
     const ranks = [
-      "ace",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "10",
-      "jack",
-      "queen",
-      "king",
+      "ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king"
     ];
     const suits = ["spades", "hearts", "diamonds", "clubs"];
+
     for (const rank of ranks) {
       for (const suit of suits) {
-        cardImages.push(`/cards/images/${rank}_of_${suit}.gif`);
+        cardImages.push(`/cards/updated_images/${rank}_of_${suit}.png`);
       }
     }
 
-    // Load the Desk
-    gltfLoader.load(
-      "/Scene/Models/desk.glb",
-      (gltf) => {
-        const desk = gltf.scene;
-        desk.scale.set(5, 5, 5); // Adjust the scale if necessary
-        desk.position.set(0, -2, 0); // Adjust the position to be under the cards
-        scene.add(desk);
-      },
-      undefined,
-      (error) => console.error("Error loading desk:", error)
-    );
-
-    // Load the Card Model
-    gltfLoader.load(
-      "/Scene/Models/poker_card_raw.gltf",
-      (gltf) => {
-        const originalCard = gltf.scene;
-
-        // Load the textures for each card and clone the model
-        cardImages.forEach((image, i) => {
-          // Clone the model
+    gltfLoader.load("/Scene/Models/poker_card_model.gltf", function (gltf) {
+      const originalCard = gltf.scene;
+    
+      ranks.forEach((rank, rIndex) => {
+        suits.forEach((suit, sIndex) => {
           const card = originalCard.clone();
-
-          // Apply texture to the card
-          const texture = textureLoader.load(image);
-          const material = new THREE.MeshBasicMaterial({ map: texture });
-
-          // Traverse the model and apply the texture to the appropriate mesh
-          card.traverse((child) => {
+    
+          card.traverse(function (child) {
             if (child.isMesh) {
-              child.material = material;
+              if (child.name === "Cube") {
+                // Load the card texture dynamically
+                const texture = textureLoader.load(`/cards/updated_images/${rank}_of_${suit}.png`);
+                child.material.map = texture;
+                child.material.map.needsUpdate = true;
+              }
             }
           });
-
-          // Position the cards in a grid-like layout
-          const row = Math.floor(i / 13);
-          const col = i % 13;
-          card.position.set(col * 1.5 - 9, row * -2 + 4, 0.1);
-
-          // Add rotation animation
-          const speed = 0.01;
-          card.tick = () => {
-            card.rotation.y += speed;
-          };
-
-          cardModels.push(card);
+    
+          // Position the card
+          card.position.set(rIndex * 15, -sIndex * 20, 0);
           scene.add(card);
+          console.log("Scene children: ", scene.children, " index: ", )
         });
+      });
+    });
+    
 
-        // Animation loop
-        const animate = () => {
-          requestAnimationFrame(animate);
-
-          cardModels.forEach((card) => {
-            if (card.tick) card.tick();
-          });
-
-          controls.update();
-          renderer.render(scene, camera);
-        };
-        animate();
-      },
-      undefined,
-      (error) => console.error("Error loading poker card:", error)
-    );
+    // Animation Loop
+    function animate() {
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
 
     // Cleanup
     return () => {
