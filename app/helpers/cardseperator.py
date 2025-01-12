@@ -1,32 +1,25 @@
 from PIL import Image
 
-# Load the uploaded image
 image_path = "./vecteezy_set-of-poker-cards-with-isolated-on-white-background-poker_53654344.jpg"
 original_image = Image.open(image_path)
 
-# Get image dimensions
 image_width, image_height = original_image.size
 
-# Define the grid (13 columns for ranks, 4 rows for suits)
-cols = 13  # 13 cards per suit
-rows = 4   # 4 suits
+cols = 13 
+rows = 4  
 
-# Calculate the width and height of each card
 card_width = image_width // cols
 card_height = image_height // rows
 
-# Refine the padding adjustments
 left_padding = 21   
 right_padding = 10 
 top_padding = 16
 bottom_padding = 15 
 
-# Directory to save individual cards
 output_dir = "./cards/"
 import os
 os.makedirs(output_dir, exist_ok=True)
 
-# Crop each card and save
 card_names = ['hearts', 'diamonds', 'spades', 'clubs']
 file_paths = []
 
@@ -39,7 +32,6 @@ for row in range(rows):
 
         card = original_image.crop((left, upper, right, lower))
         
-        # Name cards appropriately
         rank = col + 1
         if rank == 1:
             rank_name = "ace"
