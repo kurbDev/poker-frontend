@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { clone } from "three/examples/jsm/utils/SkeletonUtils";
 
 export default function ThreeScene() {
   const mountRef = useRef(null);
@@ -72,11 +71,9 @@ export default function ThreeScene() {
     ];
     const suits = ["spades", "hearts", "diamonds", "clubs"];
     const cardsGroup = new THREE.Group();
-    const mixers = [];
 
     gltfLoader.load("/Scene/Models/poker_card_model.gltf", (gltf) => {
       const originalCard = gltf.scene;
-      const animations = gltf.animations;
 
       ranks.forEach((rank, rIndex) => {
         suits.forEach((suit, sIndex) => {
@@ -88,33 +85,12 @@ export default function ThreeScene() {
             if (child.isMesh && child.name === "Cube") {
               const texture = textureLoader.load(`/cards/updated_images/${rank}_of_${suit}.png`);
 
-              // Check if the child is a SkinnedMesh or normal mesh and set material accordingly
-              if (child.isSkinnedMesh) {
-                child.material = new THREE.MeshBasicMaterial({
-                  map: texture,
-                  skinning: true, // Enable skinning for SkinnedMesh
-                });
-              } else {
-                child.material = new THREE.MeshBasicMaterial({
-                  map: texture,
-                  skinning: false, // Disable skinning for regular meshes
-                });
-              }
+              child.material = new THREE.MeshBasicMaterial({
+                map: texture,
+              });
             }
           });
 
-          const mixer = new THREE.AnimationMixer(card);
-          const cardUpAction = mixer.clipAction(animations.find((clip) => clip.name === "CardUp"));
-          
-          console.log("CardUp found: ", cardUpAction);
-
-          if (cardUpAction) {
-            cardUpAction.setLoop(THREE.LoopOnce); 
-            cardUpAction.clampWhenFinished = true;
-            cardUpAction.play();
-          }
-
-          mixers.push(mixer);
           cardsGroup.add(card);
         });
       });
@@ -128,7 +104,7 @@ export default function ThreeScene() {
 
       const planeMaterial = new THREE.MeshStandardMaterial({
         color: 0x88cc88,
-        displacementMap: heightmap, 
+        displacementMap: heightmap,
         displacementScale: 5,
         wireframe: false,
       });
@@ -144,18 +120,16 @@ export default function ThreeScene() {
     const boxGeometry = new THREE.BoxGeometry(3, 3, 3);
     const boxMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
     const box = new THREE.Mesh(boxGeometry, boxMaterial);
-    box.position.set(10, 0, -30); 
+    box.position.set(10, 0, -30);
     box.castShadow = true;
     box.receiveShadow = true;
 
     scene.add(box);
 
     function animate() {
-      controls.update(); 
+      controls.update();
       box.rotation.x += 0.01;
       box.rotation.y += 0.01;
-
-      mixers.forEach((mixer) => mixer.update(clock.getDelta()));
 
       renderer.render(scene, camera);
       requestAnimationFrame(animate);
